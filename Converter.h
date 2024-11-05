@@ -14,7 +14,7 @@ public:
 
     static vector<vector<char>> splitBytes(vector<char> bytes);
 
-    static Directory_Entry BytesToDirectory_Entity(vector<char> bytes);
+    static Directory_Entry BytesToDirectory_Entry(vector<char> bytes);
 
-    static vector<char> Directory_EntityToBytes(Directory_Entry d);
+    static vector<char> Directory_EntryToBytes(Directory_Entry d);
 };

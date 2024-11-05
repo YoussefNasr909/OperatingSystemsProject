@@ -1,10 +1,15 @@
-#include "Converter.h"
+﻿#include "Converter.h"
 #include <cstring>
 vector<char> Converter::intToByte(int n)
 {
     vector<char> bytes(sizeof(int));
     memcpy(bytes.data(), &n, sizeof(int));
     return bytes;
+    /*
+    memcpy بتعمل نسخ للبيانات من مكان لمكان تاني في الذاكرة
+    هنا بتاخد قيمة عدد صحيح وتنسخه كبايتات والي تحت بتعمل العكس
+    n& العنوان الي هنحط فيه البايتات
+    */
 }
 int Converter::byteToInt(vector<char> bytes)
 {
@@ -16,6 +21,9 @@ vector<char> Converter::intArrayToByteArray(int* ints, int size)
 {
     vector<char> bytes(size * sizeof(int));
     memcpy(bytes.data(), ints, size * sizeof(int));
+    /*
+    بتحول اراي من اعداد صحيحة لبايتات والعكس 
+    */
     return bytes;
 }
 void Converter::byteArrayToIntArray(int* ints, vector<char> bytes)
@@ -35,13 +43,13 @@ vector<vector<char>> Converter::splitBytes(vector<char> bytes)
 
     return result;
 }
-Directory_Entry Converter::BytesToDirectory_Entity(vector<char> bytes)
+Directory_Entry Converter::BytesToDirectory_Entry(vector<char> bytes)
 {
     Directory_Entry dirEntry("", 0, 0);
     memcpy(&dirEntry, bytes.data(), sizeof(Directory_Entry));
     return dirEntry;
 }
-vector<char> Converter::Directory_EntityToBytes(Directory_Entry d)
+vector<char> Converter::Directory_EntryToBytes(Directory_Entry d)
 {
     vector<char> bytes(sizeof(Directory_Entry));
     memcpy(bytes.data(), &d, sizeof(Directory_Entry));
