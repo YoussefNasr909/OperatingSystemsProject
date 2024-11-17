@@ -1,104 +1,127 @@
-#include "Mini_FAT.h"
-#include <iostream>
-#include <fstream>
-#include <cstring>
+﻿#include "Mini_FAT.h"
+#include "Converter.h"
 #include <vector>
+#include <iostream>
+
 using namespace std;
 
-int Mini_FAT::FAT[1024];
+int Mini_FAT::FAT[1024]; // Definition of the static FAT array
+
 void Mini_FAT::initialize_FAT()
 {
-    fill_n(FAT, 1024, -1);
+    for (int i = 0; i < 1024; i++)
+    {
+        if (i == 0 || i == 4)
+        {
+            FAT[i] = -1;
+        }
+        else if (i > 0 && i <= 3)
+        {
+            FAT[i] = i + 1;
+        }
+        else
+        {
+            FAT[i] = 0;
+        }
+    }
 }
+
 vector<char> Mini_FAT::createSuperBlock()
 {
-    vector<char> superBlock(1024 * sizeof(int));
-    memcpy(superBlock.data(), FAT, 1024 * sizeof(int));
+    vector<char> superBlock(1024, 0);
     return superBlock;
 }
+
 void Mini_FAT::writeFAT()
 {
-    ofstream outFile("FAT.bin", ios::binary);
-    if (outFile)
+    vector<char> FATBYTES = Converter::intArrayToByteArray(FAT, 1024);
+    vector<vector<char>> ls = Converter::splitBytes(FATBYTES);
+    for (int i = 0; i < ls.size(); i++)
     {
-        outFile.write(reinterpret_cast<char*>(FAT), 1024 * sizeof(int));
-        outFile.close();
-    }
-    else
-    {
-        cout << "Error writing to FAT file." << endl;
+        virtualDisk::writeDataCluster(ls[i], i + 1);
     }
 }
+
 void Mini_FAT::readFAT()
 {
-    ifstream inFile("FAT.bin", ios::binary);
-    if (inFile)
+    vector<char> ls;
+    for (int i = 1; i <= 4; i++)
     {
-        inFile.read(reinterpret_cast<char*>(FAT), 1024 * sizeof(int));
-        inFile.close();
+        vector<char> b = virtualDisk::readDataCluster(i);
+        ls.insert(ls.end(), b.begin(), b.end());
     }
-    else
-    {
-        cout << "Error reading FAT file." << endl;
-    }
+    Converter::byteArrayToIntArray(FAT, ls);
 }
+
 void Mini_FAT::printFAT()
 {
+    cout << "FAT has the following: ";
     for (int i = 0; i < 1024; i++)
-    {
-        cout << "Cluster " << i << ": " << FAT[i] << endl;
-    }
+        cout << "FAT[" << i << "] = " << FAT[i] << endl;
 }
+
 void Mini_FAT::setFAT(int fat_arr[1024])
 {
-    memcpy(FAT, fat_arr, 1024 * sizeof(int));
-}
-void Mini_FAT::initialize_Or_Open_FileSystem(string name)
-{
-    ifstream file(name, ios::binary);
-    if (file)
-    {
-        readFAT();
-        cout << "FAT system opened from file." << endl;
-    }
-    else
-    {
-        initialize_FAT();
-        writeFAT();
-        cout << "FAT system initialized." << endl;
-    }
-}
-void Mini_FAT::getAvilableClusters()
-{
-    int availableClusters = 0;
     for (int i = 0; i < 1024; i++)
     {
-        if (FAT[i] == -1)
-            availableClusters++;
+        FAT[i] = fat_arr[i];
     }
-    cout << "Available clusters: " << availableClusters << endl;
 }
+
+void Mini_FAT::initialize_Or_Open_FileSystem(string name)
+{
+    virtualDisk::createOrOpenDisk(name);
+    if (virtualDisk::isNew())
+    {
+        vector<char> superBlock = createSuperBlock();
+        virtualDisk::writeDataCluster(superBlock, 0);
+        initialize_FAT();
+        writeFAT();
+    }
+    else
+    {
+        readFAT();
+    }
+}
+
+void Mini_FAT::getAvilableClusters()
+{
+    int count = 0;
+    for (int i = 0; i < 1024; i++)
+    {
+        if (FAT[i] == 0)
+            count++;
+    }
+    cout << "Available clusters: " << count << endl;
+}
+
 void Mini_FAT::setClusterPointer(int clusterIndex, int pointer)
 {
-    if (clusterIndex >= 0 && clusterIndex < 1024)
+    if (clusterIndex >= 0 && clusterIndex < 1024 && pointer >= 0 && pointer < 1024)
+    {
         FAT[clusterIndex] = pointer;
-    else
-        cout << "Cluster index out of bounds." << endl;
+    }
 }
+
 void Mini_FAT::getClusterPointer(int clusterIndex)
 {
     if (clusterIndex >= 0 && clusterIndex < 1024)
-        cout << "Pointer at cluster " << clusterIndex << ": " << FAT[clusterIndex] << endl;
+    {
+        cout << "Cluster pointer at index " << clusterIndex << ": " << FAT[clusterIndex] << endl;
+    }
     else
-        cout << "Cluster index out of bounds." << endl;
+    {
+        cout << "Invalid cluster index." << endl;
+    }
 }
+
 void Mini_FAT::getFreeSize()
 {
     int freeClusters = 0;
     for (int i = 0; i < 1024; i++)
     {
-        if (FAT[i] == -1)
+        if (FAT[i] == 0)
             freeClusters++;
     }
-    cout << "Free size in clusters: " << freeClusters << endl;
+    cout << "Free size: " << (freeClusters * 1024) << " bytes" << endl;
 }

@@ -10,7 +10,7 @@ public:
 	char dir_attr;
 	char dir_empty[12];
 	int dir_firstCluster;
-	int dir_fileSize;
+	int dir_filesize;
 
 	Directory_Entry(string name, char dir_attr, int dir_firstCluster);
 	string cleanTheName(string s);
