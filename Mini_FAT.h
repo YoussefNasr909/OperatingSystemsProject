@@ -12,9 +12,9 @@ public:
 	static void printFAT();
 	static void setFAT(int fat_arr[1024]);
 	static void initialize_Or_Open_FileSystem(string name);
-	static void getAvilableClusters();
+	static int getAvilableClusters();
 	static void setClusterPointer(int clusterIndex, int pointer);
-	static void getClusterPointer(int clusterIndex);
+	static int getClusterPointer(int clusterIndex);
 	static void getFreeSize();
 
 private:

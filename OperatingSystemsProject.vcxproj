@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Converter.cpp" />
+    <ClCompile Include="Directory.cpp" />
     <ClCompile Include="DirectoryEntry.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mini_FAT.cpp" />
@@ -135,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Converter.h" />
+    <ClInclude Include="Directory.h" />
     <ClInclude Include="DirectoryEntry.h" />
     <ClInclude Include="Mini_FAT.h" />
     <ClInclude Include="virtualDisk.h" />
