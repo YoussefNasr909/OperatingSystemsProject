@@ -6,8 +6,8 @@
 namespace OperatingSystemsProject {
     class Directory : public Directory_Entry {
     public:
-        vector<Directory_Entry> DirFiles; 
-        Directory* parent;  
+        vector<Directory_Entry> DirFiles;
+        Directory* parent; 
         vector<Directory_Entry> DirOrFiles; 
 
         Directory(string name, char dir_attr, int dir_firstCluster, Directory* par);
